@@ -3,8 +3,9 @@
 export ARCH=arm64
 mkdir out
 
-BUILD_CROSS_COMPILE=aarch64-linux-gnu-
-CLANG_TRIPLE=aarch64-linux-gnu-
+BUILD_CROSS_COMPILE=~/aarch64--glibc--bleeding-edge-2021.11-1/bin/aarch64-linux-
+CLANG_TRIPLE=aarch64-unknown-none-eabi
+#CLANG_TRIPLE=aarch64-linux-gnu-
 KERNEL_MAKE_ENV="DTC_EXT=$(pwd)/tools/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y"
 
 echo "**********************************"
@@ -12,8 +13,9 @@ echo "Select variant (Snapdragon only)"
 echo "(1) 4G Variant"
 echo "(2) 5G Variant"
 read -p "Selected variant: " variant
+CPU=$(($(nproc) - 1))
 
-make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE r8q_defconfig
+make -j$CPU -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE r8q_defconfig
 
 if [ $variant == "1" ]; then
 	echo "
@@ -45,7 +47,7 @@ CONFIG_FIVE
 
 fi
 
-if [ $1 == "release" ]; then
+if [[ $1 == "release" ]]; then
 	echo "
 Full LTO build enabled"
 
@@ -53,9 +55,9 @@ cat arch/arm64/configs/vendor/release_defconfig >> out/.config
 
 fi
 
-make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE oldconfig
+make -j$CPU -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE oldconfig
 
-make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE
+make -j$CPU -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE
 
 cat out/arch/arm64/boot/dts/vendor/qcom/*.dtb > out/dtb.img
 
