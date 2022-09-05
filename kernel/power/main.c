@@ -804,6 +804,9 @@ int set_freq_limit(unsigned long id, unsigned int freq)
 	struct cpufreq_limit_handle *handle =
 							cpufreq_limit_get_handle(id);
 
+	//bandido: ignore for now
+	return 0;
+
 	pr_debug("%s: id(%d) freq(%d)\n", __func__, (int)id, freq);
 
 	mutex_lock(&cpufreq_limit_mutex);
