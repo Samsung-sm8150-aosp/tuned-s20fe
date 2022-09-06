@@ -374,14 +374,15 @@ KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 
 # Make variables (CC, etc...)
 CPP		= $(CC) -E
+AS		= = $(CROSS_COMPILE)as
 ifneq ($(LLVM),)
-CC		= clang
-LD		= ld.lld
-AR		= llvm-ar
-NM		= llvm-nm
-OBJCOPY		= llvm-objcopy
-OBJDUMP		= llvm-objdump
-STRIP		= llvm-strip
+CC		= $(CLANG_DIR)clang
+LD		= $(CLANG_DIR)ld.lld
+AR		= $(CLANG_DIR)llvm-ar
+NM		= $(CLANG_DIR)llvm-nm
+OBJCOPY		= $(CLANG_DIR)llvm-objcopy
+OBJDUMP		= $(CLANG_DIR)llvm-objdump
+STRIP		= $(CLANG_DIR)llvm-strip
 else
 CC		= $(CROSS_COMPILE)gcc
 LD		= $(CROSS_COMPILE)ld
@@ -636,8 +637,9 @@ endif
 ifdef CONFIG_LTO_CLANG
 # use llvm-ar for building symbol tables from IR files, and llvm-nm instead
 # of objdump for processing symbol versions and exports
-LLVM_AR		:= llvm-ar
-LLVM_NM		:= llvm-nm
+LLVM_BIN_PATH := $(patsubst %/,%,$(dir $(shell which $(CC))))
+LLVM_AR		:= $(LLVM_BIN_PATH)/llvm-ar
+LLVM_NM		:= $(LLVM_BIN_PATH)/llvm-nm
 export LLVM_AR LLVM_NM
 endif
 
@@ -714,6 +716,11 @@ ifdef CONFIG_PROFILE_ALL_BRANCHES
 KBUILD_CFLAGS	+= -O2 $(call cc-disable-warning,maybe-uninitialized,)
 else
 KBUILD_CFLAGS   += -O3 $(OPTS)
+ifeq ($(CONFIG_LTO_CLANG),y)
+ifeq ($(CONFIG_LD_IS_LLD), y)
+LDFLAGS += --lto-O2
+endif
+endif
 endif
 endif
 
@@ -753,16 +760,10 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
 KBUILD_CFLAGS += $(stackp-flags-y)
 
 ifeq ($(cc-name),clang)
-ifneq ($(CROSS_COMPILE),)
-CLANG_TRIPLE	?= $(CROSS_COMPILE)
-CLANG_TARGET	:= --target=$(notdir $(CLANG_TRIPLE:%-=%))
-GCC_TOOLCHAIN	:= $(realpath $(dir $(shell which $(LD)))/..)
+ifeq ($(CONFIG_LD_IS_LLD), y)
+KBUILD_CFLAGS += -fuse-ld=lld
 endif
-ifneq ($(GCC_TOOLCHAIN),)
-CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
-endif
-KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) -meabi gnu
-KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC)
+KBUILD_CFLAGS += -meabi gnu
 KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
 KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
