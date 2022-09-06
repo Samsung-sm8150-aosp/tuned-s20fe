@@ -13,7 +13,8 @@ echo "(1) 4G Variant"
 echo "(2) 5G Variant"
 read -p "Selected variant: " variant
 
-make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE r8q_defconfig
+make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 \
+	CLANG_DIR="/home/pascua14/llvm-12/bin/" CLANG_TRIPLE=$CLANG_TRIPLE r8q_defconfig
 
 if [ $variant == "1" ]; then
 	echo "
@@ -53,9 +54,11 @@ cat arch/arm64/configs/vendor/release_defconfig >> out/.config
 
 fi
 
-make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE oldconfig
+make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 \
+	CLANG_DIR="/home/pascua14/llvm-12/bin/" CLANG_TRIPLE=$CLANG_TRIPLE oldconfig
 
-make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 CLANG_TRIPLE=$CLANG_TRIPLE
+make -j8 -C $(pwd) O=$(pwd)/out $KERNEL_MAKE_ENV ARCH=arm64 CROSS_COMPILE=$BUILD_CROSS_COMPILE LLVM=1 \
+	CLANG_DIR="/home/pascua14/llvm-12/bin/" CLANG_TRIPLE=$CLANG_TRIPLE
 
 cat out/arch/arm64/boot/dts/vendor/qcom/*.dtb > out/dtb.img
 

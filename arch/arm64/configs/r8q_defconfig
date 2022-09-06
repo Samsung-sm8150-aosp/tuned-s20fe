@@ -4,12 +4,12 @@
 #
 
 #
-# Compiler: clang version 14.0.6
+# Compiler: Android (7416131, based on r416183c) clang version 12.0.6 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee)
 #
 CONFIG_GCC_VERSION=0
 CONFIG_CC_IS_CLANG=y
 CONFIG_LD_IS_LLD=y
-CONFIG_CLANG_VERSION=140006
+CONFIG_CLANG_VERSION=120006
 CONFIG_CC_HAS_ASM_GOTO=y
 CONFIG_TOOLS_SUPPORT_RELR=y
 CONFIG_IRQ_WORK=y
