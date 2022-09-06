@@ -4,6 +4,7 @@ export ARCH=arm64
 mkdir out
 
 BUILD_CROSS_COMPILE=~/aarch64--glibc--bleeding-edge-2021.11-1/bin/aarch64-linux-
+BUILD_CROSS_COMPILE=aarch64-linux-gnu-
 CLANG_TRIPLE=aarch64-unknown-none-eabi
 #CLANG_TRIPLE=aarch64-linux-gnu-
 KERNEL_MAKE_ENV="DTC_EXT=$(pwd)/tools/dtc CONFIG_BUILD_ARM64_DT_OVERLAY=y"
