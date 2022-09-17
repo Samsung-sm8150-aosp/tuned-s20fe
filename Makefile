@@ -359,8 +359,8 @@ HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
 HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
 ifneq ($(LLVM),)
-HOSTCC	= clang
-HOSTCXX	= clang++
+HOSTCC	= $(CLANG_DIR)clang
+HOSTCXX	= $(CLANG_DIR)clang++
 else
 HOSTCC	= gcc
 HOSTCXX	= g++
@@ -686,6 +686,9 @@ include/config/auto.conf:
 endif # may-sync-config
 endif # $(dot-config)
 
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=600
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=750
+
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
@@ -700,14 +703,7 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-overflow)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-truncation)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, zero-length-bounds)
 
-OPTS           = -ffast-math -finline-functions \
-                -ftree-slp-vectorize -funroll-loops \
-                --param=max-tail-merge-comparisons=20000 \
-                --param=max-tail-merge-iterations=20000 --param=max-cse-path-length=4000 --param=max-vartrack-size=0 \
-                --param=max-cse-insns=4000 --param=max-cselib-memory-locations=500000 --param=max-reload-search-insns=500000 \
-                --param=max-modulo-backtrack-attempts=500000 --param=max-hoist-depth=0 --param=max-pending-list-length=1000 \
-                --param=max-delay-slot-live-search=666 --param=inline-min-speedup=5 --param=early-inlining-insns=30 \
-                --param max-inline-insns-single=600 --param max-inline-insns-auto=40 --param=inline-unit-growth=150
+OPTS           = -ffast-math -finline-functions -ftree-slp-vectorize -funroll-loops
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
@@ -979,7 +975,7 @@ KBUILD_CFLAGS  += $(call cc-option,-fno-stack-check,)
 KBUILD_CFLAGS   += $(call cc-option,-Werror=implicit-int)
 
 # require functions to have arguments in prototypes, not empty 'int foo()'
-KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
+#KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
 
 # Prohibit date/time macros, which would make the build non-deterministic
 KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
